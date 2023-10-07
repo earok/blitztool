@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "BlitzTool": {
+      "commandName": "Project",
+      "commandLineArgs": "D:\\Scorpion\\scorpion-engine-blitz\\SourceCode\\start_amiga.bb C:\\Users\\earok\\Desktop\\test.bb"
+    }
+  }
+}
