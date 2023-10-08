@@ -42,7 +42,7 @@ namespace BlitzTool
 			return v == '(' || v == ')' || v == '{' || v == '}' || v == ' ' || v == ',' || v == ';';
 		}
 
-		internal static FieldData GetFieldData(string field)
+		internal static FieldData GetFieldData(string field, Dictionary<string, BlitzConstant> blitzConstants)
 		{
 			var arrayLength = 1;
 			var isPointer = field.StartsWith("*");
@@ -51,7 +51,15 @@ namespace BlitzTool
 
 			if (type.Contains("["))
 			{
-				arrayLength = int.Parse(type.Split("[")[1].Split("]")[0]);
+				var arrayLengthString = type.Split("[")[1].Split("]")[0];
+
+				//This is a constant, so revert to our actual list of constants
+				if (arrayLengthString.StartsWith("#"))
+				{
+					arrayLengthString = blitzConstants[arrayLengthString.Substring(1)].Value;
+				}
+
+				arrayLength = int.Parse(arrayLengthString);
 				type = type.Split("[")[0];
 			}
 
@@ -64,9 +72,9 @@ namespace BlitzTool
 			};
 		}
 
-		internal static int GetFieldLength(string field, Dictionary<string, BlitzNewType> newTypesDictionary)
+		internal static int GetFieldLength(string field, Dictionary<string, BlitzNewType> newTypesDictionary, Dictionary<string, BlitzConstant> blitzConstants)
 		{
-			var fieldData = GetFieldData(field);
+			var fieldData = GetFieldData(field, blitzConstants);
 
 			if (fieldData.isPointer)
 			{
@@ -96,7 +104,7 @@ namespace BlitzTool
 				var size = 0;
 				foreach (var baseField in baseType.Fields)
 				{
-					size += GetFieldLength(baseField, newTypesDictionary);
+					size += GetFieldLength(baseField, newTypesDictionary, blitzConstants);
 				}
 				return size * fieldData.arrayLength;
 			}

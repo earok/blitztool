@@ -20,7 +20,7 @@ namespace BlitzTool
 		{
 			var macros = new Dictionary<string, BlitzMacro>();
 			var statements = new Dictionary<string, BlitzStatement>();
-			var constants = new List<BlitzConstant>();
+			var constants = new Dictionary<string, BlitzConstant>();
 			var globals = new List<BlitzGlobal>();
 			var newTypes = new Dictionary<string, BlitzNewType>();
 			var blitzEnums = new Dictionary<string, BlitzEnum>();
@@ -284,7 +284,8 @@ namespace BlitzTool
 				else if (lowerLine.StartsWith("#"))
 				{
 					//This is a constant
-					constants.Add(new BlitzConstant(lines[i]));
+					var constant = new BlitzConstant(lines[i]);
+					constants.Add(constant.Name, constant);
 				}
 				else if (lowerLine.StartsWith("global "))
 				{
@@ -354,6 +355,7 @@ namespace BlitzTool
 
 			var finalOutput = new List<string>
 			{
+				"deftype .w",
 				"goto endofheader"
 			};
 
@@ -372,7 +374,7 @@ namespace BlitzTool
 			if (constants.Count > 0)
 			{
 				finalOutput.Add(";CONSTANTS SECTION");
-				foreach (var constant in constants)
+				foreach (var constant in constants.Values)
 				{
 					finalOutput.Add(constant.Source);
 				}
@@ -417,7 +419,7 @@ namespace BlitzTool
 				foreach (var newType in assemblyNewTypes)
 				{
 					var offset = 0;
-					newType.ProcessASMOffsets(finalOutput, newType.Name, ref offset, newTypes);
+					newType.ProcessASMOffsets(finalOutput, newType.Name, ref offset, newTypes, constants);
 				}
 			}
 
@@ -486,7 +488,11 @@ namespace BlitzTool
 
 			}
 
-			finalOutput.Add("AMIGA");
+			//Make sure we're in Amiga mode again for the program startup
+			if (isBlitzMode)
+			{
+				finalOutput.Add("AMIGA");
+			}
 			finalOutput.Add(".endofheader");
 
 			finalOutput.AddRange(outLines);
@@ -503,9 +509,55 @@ namespace BlitzTool
 						continue;
 					}
 					writer.Write(line); //Strips all comments
-					writer.Write("\n");
+					writer.Write("\n"); //Unix line endings
 				}
 			}
+
+			//Generate csharp output
+			if (newTypes.Values.Any(p => p.IsCSharp) || constants.Values.Any(p => p.IsCSharp))
+			{
+				finalOutput.Clear();
+				lines = File.ReadAllLines(System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "CSharp_BaseTemplate.cs")).ToList();
+
+				foreach (var line in lines)
+				{
+					switch (line.Trim().ToUpper())
+					{
+						case "//CONSTANTS":
+							foreach (var constant in constants.Values.Where(p => p.IsCSharp))
+							{
+								finalOutput.Add(string.Format("\t\tpublic const int {0} = {1};", constant.Name, constant.Value));
+							}
+							break;
+
+						case "//NEWTYPES":
+							foreach (var newtype in newTypes.Values.Where(p => p.IsCSharp))
+							{
+								newtype.ProcessCSharp(finalOutput, constants, newTypes);
+							}
+							break;
+
+						default:
+							finalOutput.Add(line);
+							break;
+					}
+				}
+
+				using (var writer = new StreamWriter(outputFilePath + ".cs"))
+				{
+					foreach (var line in finalOutput)
+					{
+						if (string.IsNullOrWhiteSpace(line))
+						{
+							continue;
+						}
+						writer.Write(line); //Strips all comments
+						writer.Write("\r\n"); //Windows line endings
+					}
+				}
+			}
+
+
 		}
 	}
 }

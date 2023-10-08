@@ -14,6 +14,7 @@ namespace BlitzTool
 		public bool IsBlitzMode;
 
 		public List<string> Lines = new List<string>();
+		public HashSet<string> ReferencedStatements = new HashSet<string>();
 
 		public BlitzStatement(string signature, bool isBlitzMode)
 		{
@@ -40,6 +41,35 @@ namespace BlitzTool
 		internal void AddLine(string v)
 		{
 			Lines.Add(v);
+
+			//No statements to find
+			v = v.Split(";")[0];
+			if (v.Contains("{") == false)
+			{
+				return;
+			}
+
+			var symbolName = "";
+			foreach (var c in v)
+			{
+				if (c == '{')
+				{
+					//Assume this whole word is a function?
+					if (symbolName.Length > 0 && symbolName.StartsWith("!") == false)
+					{
+						ReferencedStatements.Add(symbolName.ToLower());
+					}
+					symbolName = "";
+				}
+				else if (Functions.EndOfName(c) || c == ' ')
+				{
+					symbolName = "";
+				}
+				else
+				{
+					symbolName += c;
+				}
+			}
 		}
 
 		internal void Process(List<string> finalOutput, List<BlitzGlobal> globals)
@@ -84,8 +114,8 @@ namespace BlitzTool
 						continue;
 					}
 
-					//This line has an unprocessed dependency
-					if (lowerLine.Contains(unprocessed + '{'))
+					//We've referenced a statement that hasn't been processed yet
+					if (ReferencedStatements.Contains(unprocessed))
 					{
 						return true;
 					}

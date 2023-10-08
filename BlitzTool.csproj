@@ -7,4 +7,14 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="CSharp_BaseTemplate.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="CSharp_BaseTemplate.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
