@@ -1,4 +1,7 @@
-Precompiler for Blitz Basic. Still an early work in progress.
+Precompiler for Blitz Basic. Still a work in progress, only really tested on the Scorpion Engine.
+
+blitztool.exe [inputfile] [outputfile]
+
 
 Features:
 - Merges all 'include' references into a single file.
