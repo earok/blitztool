@@ -428,7 +428,7 @@ namespace BlitzTool
 				finalOutput.Add(";ARRAY SECTION");
 				foreach (var arrayDim in arrayDims)
 				{
-					finalOutput.Add(arrayDim);//.Split("(")[0] + "(0)");
+					finalOutput.Add(arrayDim.Split("(")[0] + "(0)");
 				}
 			}
 
