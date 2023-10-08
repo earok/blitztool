@@ -6,14 +6,13 @@ using System.Threading.Tasks;
 
 namespace BlitzTool
 {
-	public class BlitzMacro
+	public class BlitzGlobal
 	{
-		public List<string> lines = new List<string>();
-		public int UseCount = 0;
+		public string Value;
 
-		internal void AddLine(string line)
+		public BlitzGlobal(string v)
 		{
-			lines.Add(line);
+			Value = v.Substring("global ".Length);
 		}
 	}
 }
