@@ -93,7 +93,7 @@ namespace BlitzTool
 		//Need to verify conversion logic, may be inaccurate
 		public void FromByteArray(IList<byte> array, int offset)
 		{
-			value = BitConverter.ToInt32(new byte[] { array[3 + offset], array[2 + offset], array[1 + offset], array[0 + offset] }, 0) * ConversionMultiplier;
+			value = BitConverter.ToInt32(new byte[] { array[3 + offset], array[2 + offset], array[1 + offset], array[0 + offset] }, 0) / ConversionMultiplier;
 		}
 
 		public void ToByteArray(IList<byte> array, int offset)
