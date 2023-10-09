@@ -45,3 +45,5 @@ will generate
 '#mytype_fieldc = 6
 
 - Using ;CS on a newtype or constant declaration will generate a C# source file, this may be useful for coding other C# tools for integrating with Blitz Basic (Scorpion Engine uses this)
+
+- Using ;BLITZ on a statement or function declaration will declare that the function must be run in BLITZ mode specifically

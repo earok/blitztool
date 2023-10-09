@@ -26,6 +26,11 @@ namespace BlitzTool
 				IsFunction = true;
 			}
 
+			if (signature.ToLower().Contains(";blitz")) //Force blitz mode
+			{
+				IsBlitzMode = true;
+			}
+
 			Name = "";
 			for (var i = signature.IndexOf(' ') + 1; i < signature.Length; i++)
 			{
